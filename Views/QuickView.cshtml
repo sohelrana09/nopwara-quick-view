@@ -1,0 +1,69 @@
+@model ProductDetailsModel
+
+@using Nop.Core.Domain.Catalog
+
+@*
+    Quick view content, returned by NopwaraQuickViewController.Product and inserted into the modal.
+    It reuses the product page partials (theme versions first; paths come from ViewData) inside form#product-details-form,
+    so the core attribute-change script (price, SKU, picture) and AjaxCart.addproducttocart_details work unchanged.
+*@
+@{
+    string ViewPath(string name) => (string)ViewData[name];
+    var productUrl = await NopUrl.RouteGenericUrlAsync<Product>(new { SeName = Model.SeName });
+}
+<form asp-route="Product" asp-route-sename="@Model.SeName" method="post" id="product-details-form" class="product-details-page">
+    <article data-productid="@Model.Id" class="grid gap-6 p-5 pt-14 sm:p-8 md:grid-cols-2 md:gap-10">
+        <div class="gallery min-w-0">
+            @await Html.PartialAsync(ViewPath("_ProductDetailsPictures"), Model)
+        </div>
+
+        <div class="overview min-w-0 space-y-4">
+            @await Html.PartialAsync(ViewPath("_Discontinued"), Model)
+            <h2 class="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">@Model.Name</h2>
+            @if (!string.IsNullOrEmpty(Model.ShortDescription))
+            {
+                <div class="short-description text-sm leading-relaxed text-slate-600">@Html.Raw(Model.ShortDescription)</div>
+            }
+            @await Html.PartialAsync(ViewPath("_ProductReviewOverview"), Model.ProductReviewOverview)
+
+            <div class="product-meta space-y-1 text-sm text-slate-600 empty:hidden">
+                @await Html.PartialAsync(ViewPath("_Availability"), Model)
+                @await Html.PartialAsync(ViewPath("_SKU_Man_GTIN_Ven"), Model)
+                @await Html.PartialAsync(ViewPath("_DeliveryInfo"), Model)
+            </div>
+
+            @{
+                var dataDictAttributes = new ViewDataDictionary(ViewData);
+                dataDictAttributes.TemplateInfo.HtmlFieldPrefix = $"attributes_{Model.Id}";
+                @await Html.PartialAsync(ViewPath("_ProductAttributes"), Model, dataDictAttributes)
+
+                var dataDictGiftCard = new ViewDataDictionary(ViewData);
+                dataDictGiftCard.TemplateInfo.HtmlFieldPrefix = $"giftcard_{Model.Id}";
+                @await Html.PartialAsync(ViewPath("_GiftCardInfo"), Model.GiftCard, dataDictGiftCard)
+
+                var dataDictRental = new ViewDataDictionary(ViewData);
+                dataDictRental.TemplateInfo.HtmlFieldPrefix = $"rental_{Model.Id}";
+                @await Html.PartialAsync(ViewPath("_RentalInfo"), Model, dataDictRental)
+            }
+
+            <div class="purchase-box space-y-4 rounded-lg border border-slate-200 bg-slate-50 p-5">
+                @{
+                    var dataDictPrice = new ViewDataDictionary(ViewData);
+                    dataDictPrice.TemplateInfo.HtmlFieldPrefix = $"price_{Model.Id}";
+                    @await Html.PartialAsync(ViewPath("_ProductPrice"), Model.ProductPrice, dataDictPrice)
+
+                    @await Html.PartialAsync(ViewPath("_ProductTierPrices"), Model.TierPrices)
+
+                    var dataDictAddToCart = new ViewDataDictionary(ViewData);
+                    dataDictAddToCart.TemplateInfo.HtmlFieldPrefix = $"addtocart_{Model.Id}";
+                    @await Html.PartialAsync(ViewPath("_AddToCart"), Model.AddToCart, dataDictAddToCart)
+                }
+            </div>
+
+            <a href="@productUrl" class="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-700 hover:underline">
+                @T("Plugins.Widgets.NopwaraQuickView.ViewDetails")
+                <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+            </a>
+        </div>
+    </article>
+</form>

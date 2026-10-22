@@ -1,0 +1,40 @@
+@model Nop.Plugin.Widgets.NopwaraQuickView.Models.ConfigurationModel
+
+@{
+    Layout = "_ConfigurePlugin";
+}
+
+<form asp-controller="NopwaraQuickViewAdmin" asp-action="Configure" method="post">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="card card-default">
+                <div class="card-body">
+                    <p>@T("Plugins.Widgets.NopwaraQuickView.Instructions")</p>
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-label asp-for="AllowedThemes" />
+                        </div>
+                        <div class="col-md-9">
+                            <nop-editor asp-for="AllowedThemes" />
+                            <span asp-validation-for="AllowedThemes"></span>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-label asp-for="OpenInsteadOfRedirect" />
+                        </div>
+                        <div class="col-md-9">
+                            <nop-editor asp-for="OpenInsteadOfRedirect" />
+                            <span asp-validation-for="OpenInsteadOfRedirect"></span>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-9 offset-md-3">
+                            <input type="submit" name="save" class="btn btn-primary" value="@T("Admin.Common.Save")" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>
