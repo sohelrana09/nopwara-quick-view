@@ -4,7 +4,7 @@ using Nop.Core.Infrastructure;
 using Nop.Services.Catalog;
 using Nop.Services.Security;
 using Nop.Services.Stores;
-using Nop.Services.Themes;
+using Nop.Web.Framework.Themes;
 using Nop.Web.Controllers;
 using Nop.Web.Factories;
 using Nop.Web.Framework.Mvc.Filters;

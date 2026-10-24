@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Infrastructure;
 using Nop.Plugin.Widgets.NopwaraQuickView.Models;
-using Nop.Services.Themes;
+using Nop.Web.Framework.Themes;
 using Nop.Web.Framework.Components;
 using Nop.Web.Framework.Mvc.Routing;
 using Nop.Web.Models.Catalog;
