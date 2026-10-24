@@ -1,10 +1,11 @@
 /*
  * Nopwara quick view (Alpine.js).
  *  - [data-quickview="{productId}"] buttons open the modal (event delegation, so ajax-loaded product boxes work too)
- *  - content comes from /nopwara-quickview/{productId} and is inserted with jQuery, so the inline scripts of the core
- *    product partials (attributes, add to cart) run
- *  - AjaxCart.success_process is wrapped: a successful add from the modal closes it, and (optionally) a product box
- *    "Add to cart" that core would redirect to the product page (options required) opens the quick view instead
+ *  - content comes from /nopwara-quickview/{productId} and is inserted so the inline scripts of the core product
+ *    partials (attributes, add to cart) run: nw.html with the Nopwara theme (no jQuery), jQuery's .html() elsewhere
+ *  - a successful add from the modal closes it, and (optionally) a product box "Add to cart" that core would redirect
+ *    to the product page (options required) opens the quick view instead: the nopwara:product-added /
+ *    nopwara:cart-redirect events of nw.cart with the Nopwara theme, a wrapped AjaxCart.success_process elsewhere
  * Must be loaded before Alpine so the alpine:init listener is registered in time.
  */
 document.addEventListener('alpine:init', () => {
@@ -39,7 +40,8 @@ document.addEventListener('alpine:init', () => {
         this.show(button.dataset.quickview);
       });
 
-      onReady(() => this.wrapAjaxCart());
+      if (window.nw && window.nw.cart) this.listenToCart();
+      else onReady(() => this.wrapAjaxCart());
     },
 
     //a product page has its own form#product-details-form; a second one would make the core scripts post the wrong form
@@ -66,14 +68,16 @@ document.addEventListener('alpine:init', () => {
         const html = await response.text();
         if (request !== this.request || !this.open) return;
 
-        //jQuery runs the inline scripts of the partials; Alpine picks up the gallery component by itself
-        window.jQuery(this.$refs.content).html(html);
+        //the inline scripts of the partials must run; Alpine picks up the gallery component by itself
+        if (window.nw) await window.nw.html(this.$refs.content, html);
+        else window.jQuery(this.$refs.content).html(html);
         this.loading = false;
         this.$nextTick(() => this.$refs.content.querySelector('input:not([type=hidden]), select, button, a[href]')?.focus({ preventScroll: true }));
       } catch (e) {
         if (request !== this.request) return;
         this.close();
-        window.displayBarNotification?.(this.errorText, 'error', 3500);
+        if (window.nw) window.nw.notify(this.errorText, 'error', 3500);
+        else window.displayBarNotification?.(this.errorText, 'error', 3500);
       }
     },
 
@@ -85,7 +89,7 @@ document.addEventListener('alpine:init', () => {
       //drop the content (and its form#product-details-form) after the leave transition
       setTimeout(() => {
         if (request === this.request && !this.open) {
-          window.jQuery?.(this.$refs.content).empty();
+          this.$refs.content.replaceChildren();
           this.loading = false;
         }
       }, 200);
@@ -123,6 +127,23 @@ document.addEventListener('alpine:init', () => {
       return null;
     },
 
+    //Nopwara theme: nw.cart (Content/js/nopwara-core.js) events
+    listenToCart() {
+      window.addEventListener('nopwara:product-added', () => {
+        if (this.open) this.close();
+      });
+      window.addEventListener('nopwara:cart-redirect', (e) => {
+        const response = e.detail;
+        if (this.open || !this.openInsteadOfRedirect || response.message || this.pageHasProductForm()) return;
+        const productId = this.productIdForUrl(response.redirect);
+        if (productId) {
+          e.preventDefault();
+          this.show(productId);
+        }
+      });
+    },
+
+    //other themes: core AjaxCart (jQuery)
     wrapAjaxCart() {
       const cart = window.AjaxCart;
       if (!cart || cart.nopwaraQuickView) return;

@@ -5,7 +5,7 @@
 @*
     Quick view content, returned by NopwaraQuickViewController.Product and inserted into the modal.
     It reuses the product page partials (theme versions first; paths come from ViewData) inside form#product-details-form,
-    so the core attribute-change script (price, SKU, picture) and AjaxCart.addproducttocart_details work unchanged.
+    so the attribute-change script (price, SKU, picture) and the add-to-cart button work unchanged.
 *@
 @{
     string ViewPath(string name) => (string)ViewData[name];
