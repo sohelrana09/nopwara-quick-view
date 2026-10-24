@@ -2,7 +2,7 @@
   "Group": "Widgets",
   "FriendlyName": "Nopwara quick view",
   "SystemName": "Widgets.NopwaraQuickView",
-  "Version": "1.01",
+  "Version": "1.02",
   "SupportedVersions": [ "5.00" ],
   "Author": "Nopwara",
   "DisplayOrder": 1,

@@ -8,7 +8,8 @@
 
 @*
     Nopwara quick view modal (Alpine "nopwaraQuickView"). Opened by [data-quickview] buttons; the content comes from
-    the plugin endpoint and is inserted with jQuery so the inline scripts of the core product partials run.
+    the plugin endpoint and is inserted with nw.html (Nopwara theme) or jQuery (other themes) so the inline scripts of the
+    core product partials run.
 *@
 <div x-data="nopwaraQuickView"
      data-url-template="@Model.UrlTemplate"
